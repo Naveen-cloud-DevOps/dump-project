@@ -1,31 +1,39 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template_string
+import mysql.connector
 
-app = Flask(__name__)
+# Your existing DB config
+db_config = {
+    'host': 'veera.c5awqomecj30.us-east-1.rds.amazonaws.com',
+    'user': 'admin',
+    'password': 'Cloud123',
+    'database': 'dev'
+}
 
-# Route for homepage
-@app.route('/')
-def index():
-    return render_template('index.html')
+def get_db_connection():
+    return mysql.connector.connect(**db_config)
 
-# Route for checkout page
-@app.route('/checkout')
-def checkout():
-    return render_template('checkout.html')
-
-# Route for success page
-@app.route('/success')
-def success():
-    return render_template('success.html')
-
-# Optional: Handle form POST
 @app.route('/submit-order', methods=['POST'])
 def submit_order():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    address = request.form.get('address')
-    # Optional: Save to database
-    product = request.args.get('product')  # Pass product if needed
-    return redirect(url_for('success', product=product))  # Redirect with product
+    name = request.form['name']
+    email = request.form['email']
+    address = request.form['address']
+    product = request.args.get('product')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    if not name or not email or not address or not product:
+        return "Missing fields", 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            "INSERT INTO orders (name, email, address, product) VALUES (%s, %s, %s, %s)",
+            (name, email, address, product)
+        )
+        conn.commit()
+        return redirect(f"/success?product={product}")
+    except Exception as e:
+        return f"Database error: {str(e)}", 500
+    finally:
+        cursor.close()
+        conn.close()

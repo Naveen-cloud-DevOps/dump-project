@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1, p {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .product-section {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: flex-start;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .product-section img {
+            width: 200px;
+            height: auto;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-details h2 {
+            margin: 0 0 10px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-button {
+            display: inline-block;
+            background: #e8491d;
+            color: #fff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .submit-button:hover {
+            background: #d6411d;
+        }
+
+        .success-message {
+            display: none;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .success-message h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .success-message p {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Checkout</h1>
+        <p>Thank you for your purchase! Please provide your details to complete the order.</p>
+
+        <div id="product-info" class="product-section"></div>
+
+        <form id="checkout-form" method="POST">
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+                <label for="address">Shipping Address:</label>
+                <input type="text" id="address" name="address" required />
+            </div>
+            <button type="submit" class="submit-button">Submit Order</button>
+        </form>
+
+        <div id="success-message" class="success-message">
+            <h2>Successfully Purchased!</h2>
+            <p>Your order has been successfully placed. Thank you!</p>
+        </div>
+    </div>
+
+    <script>
+        // Get product from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const product = urlParams.get('product');
+
+        const products = {
+            beauty: {
+                name: "Beauty Product",
+                image: "https://franchiseindia.s3.ap-south-1.amazonaws.com/uploads/news/wi/5a2b878420b31.jpg",
+                description: "Achieve glowing skin with our Radiant Skin Cream. Perfect for all skin types.",
+                price: "$29.99"
+            },
+            mobiles: {
+                name: "Mobiles",
+                image: "https://www.gorefurbo.com/cdn/shop/collections/Refurbished_Mobile_Phones_1.jpg?v=1695978895",
+                description: "High-quality mobile phones for all your needs.",
+                price: "$199.99"
+            },
+            snacks: {
+                name: "Organic Snack Bars",
+                image: "https://t3.ftcdn.net/jpg/02/52/38/80/360_F_252388016_KjPnB9vglSCuUJAumCDNbmMzGdzPAucK.jpg",
+                description: "Enjoy a healthy snack with our Organic Snack Bars. Made with natural ingredients.",
+                price: "$19.99"
+            },
+            grocery: {
+                name: "Grocery",
+                image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYDATNoFKploew5OMW3etFJIExLq2dOxtNJFVvAiA0rNNB3VLKpAjAwV7SEzg4sIz45Sf_hCc-7MRS4PQM8erBcvLQDel9s2tLmh6s4Lyj7qoHf-rx7oP6F5yhgvPcZHbr09e5sglYptI/w1200-h630-p-k-no-nu/ekiranahome-banner1.jpg",
+                description: "Experience the best features of our grocery items. Designed to make your life easier and more enjoyable.",
+                price: "$99.99"
+            }
+        };
+
+        if (product && products[product]) {
+            const productInfo = products[product];
+            document.getElementById('product-info').innerHTML = `
+                <img src="${productInfo.image}" alt="${productInfo.name}">
+                <div class="product-details">
+                    <h2>${productInfo.name}</h2>
+                    <p>${productInfo.description}</p>
+                    <p><strong>Price: ${productInfo.price}</strong></p>
+                </div>
+            `;
+        } else {
+            document.getElementById('product-info').innerHTML = '<p>Product not found.</p>';
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            this.action = `/submit-order?product=${product}`;
+            this.submit();
+        });
+    </script>
+</body>
+</html>
